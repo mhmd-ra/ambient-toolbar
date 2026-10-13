@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ambient Toolbar for YouTube</title>
+<meta name="description" content="A Firefox add-on that tints your tab bar and toolbar in real time to match the YouTube video you're watching.">
+<meta property="og:title" content="Ambient Toolbar for YouTube">
+<meta property="og:description" content="Your Firefox toolbar glows with the colors of the video you're watching.">
+<meta property="og:image" content="https://mhmd-ra.github.io/ambient-toolbar/assets/screenshots/ocean.jpg">
+<link rel="icon" href="assets/favicon.png">
+<style>
+  :root {
+    --bg: #0d0d10; --panel: #16161b; --line: #26262e; --text: #ededf2; --dim: #9898a6;
+    --accent: #3ea6ff; --max: 1040px;
+    --scene: linear-gradient(90deg, #ff3d6e, #ff9a3d, #ffe14d, #3dffa8, #3dc8ff, #7a5cff, #ff3dd2, #ff3d6e);
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text); }
+  nav .brand img { width: 28px; height: 28px; }
+  nav .links { display: flex; gap: 18px; font-size: 14px; }
+  nav .links a { color: var(--dim); }
+  @media (max-width: 600px) { nav .links a:not(:last-child) { display: none; } }
+
+  .hero { text-align: center; padding: 48px 0 28px; }
+  .hero h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.08; margin: 0 0 16px; letter-spacing: -0.02em; }
+  .hero h1 span { background: var(--scene); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: pan 12s linear infinite; }
+  .hero p { color: var(--dim); font-size: 18px; max-width: 600px; margin: 0 auto 28px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; }
+  .btn.primary { background: #ff7139; color: #fff; }
+  .btn.ghost { border: 1px solid var(--line); color: var(--text); }
+  .btn:hover { text-decoration: none; filter: brightness(1.1); }
+
+  .shot { margin: 44px auto 0; max-width: 960px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 30px 80px -20px rgba(0,0,0,.8); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .gallery { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); max-width: 960px; margin: 14px auto 0; }
+  @media (max-width: 760px) { .gallery { grid-template-columns: 1fr; } }
+  .gallery img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line); }
+  .caption { text-align: center; color: var(--dim); font-size: 13px; margin-top: 10px; }
+  @keyframes pan { to { background-position: 300% 0; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+
+  section { padding: 64px 0 0; }
+  h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .lead { color: var(--dim); margin: 0 0 28px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 16px; }
+  .card p { margin: 0; color: var(--dim); font-size: 14px; }
+  .card .ic { font-size: 22px; margin-bottom: 8px; }
+
+  .split { display: grid; gap: 32px; grid-template-columns: 1fr 320px; align-items: start; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } .split img { margin: 0 auto; } }
+  .split img { width: 100%; max-width: 320px; border-radius: 12px; border: 1px solid var(--line); display: block; }
+  ol.steps { padding: 0; margin: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
+  ol.steps li { counter-increment: s; position: relative; padding-left: 44px; color: var(--dim); }
+  ol.steps li b { color: var(--text); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--panel); border: 1px solid var(--line); display: grid; place-items: center; color: var(--text); font-weight: 600; font-size: 14px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+  .presets span { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 4px 12px; font-size: 13px; }
+  code { background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 13px; }
+
+  footer { margin-top: 80px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--dim); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="./"><img src="assets/icon.png" alt="">Ambient Toolbar</a>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#settings">Settings</a>
+      <a href="#pair">Ambient light</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/mhmd-ra/ambient-toolbar">GitHub</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <h1>Your toolbar, <span>glowing with the video.</span></h1>
+    <p>Ambient Toolbar is a Firefox add-on that tints your tab bar and toolbar in real time to match the YouTube video you're watching. It's like ambient light that reaches past the video and into the browser.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">Add to Firefox</a>
+      <a class="btn ghost" href="https://github.com/mhmd-ra/ambient-toolbar">View source on GitHub</a>
+    </div>
+
+    <div class="shot"><img src="assets/screenshots/ocean.jpg" alt="Firefox tab bar and toolbar tinted teal to match an underwater YouTube video" width="1600" height="826"></div>
+    <div class="gallery">
+      <img src="assets/screenshots/liquids.jpg" alt="Toolbar glowing red and amber with an abstract liquid video" loading="lazy">
+      <img src="assets/screenshots/gradient.jpg" alt="Toolbar glowing pink and violet with a soft color-gradient video" loading="lazy">
+      <img src="assets/screenshots/witcher.jpg" alt="Toolbar in muted grey-green tones with a dark forest game video" loading="lazy">
+    </div>
+    <div class="caption">Real screenshots, shown with Ambient light for YouTube's glow around the video.</div>
+  </header>
+
+  <section id="features">
+    <h2>Features</h2>
+    <p class="lead">Built to blend with the glow around the video.</p>
+    <div class="grid">
+      <div class="card"><div class="ic">🌈</div><h3>Gradient glow</h3><p>A left-to-right glow across the whole header that follows the colors along the top of the video.</p></div>
+      <div class="card"><div class="ic">🎚️</div><h3>Fully adjustable</h3><p>Blur, edge size, spread fade, brightness, saturation, contrast, color temperature and more.</p></div>
+      <div class="card"><div class="ic">✨</div><h3>Flicker-free</h3><p>A tiny 1-pixel strip with double buffering, so the glow updates without flashing.</p></div>
+      <div class="card"><div class="ic">⏸️</div><h3>Smart behavior</h3><p>Keeps its color while paused, updates when you seek, and restores your theme when you leave the video.</p></div>
+      <div class="card"><div class="ic">🔤</div><h3>Always readable</h3><p>Text and icons switch between light and dark automatically, or you can pick one.</p></div>
+      <div class="card"><div class="ic">🎬</div><h3>Black bars ignored</h3><p>Letterboxed videos don't darken the toolbar. Colors come from the actual picture.</p></div>
+      <div class="card"><div class="ic">🤝</div><h3>Pairs with Ambient light</h3><p>Calibrated to match Ambient light for YouTube, and it can import that add-on's settings.</p></div>
+      <div class="card"><div class="ic">🔒</div><h3>Private</h3><p>Everything happens on your device. No data is collected or sent anywhere.</p></div>
+    </div>
+  </section>
+
+  <section id="settings">
+    <div class="split">
+      <div>
+        <h2>Make it yours</h2>
+        <p class="lead">Open the toolbar button, or go to Add-ons → Ambient Toolbar → Options. Changes apply live, even while paused. Turn on <b>Advanced</b> to see every option.</p>
+        <ol class="steps">
+          <li><b>Ambient light:</b> gradient glow on or off, color picking, black-bar removal, blur, edge size, spread fade and color zones.</li>
+          <li><b>Filters:</b> brightness, saturation, contrast and color temperature.</li>
+          <li><b>Toolbar:</b> how much the toolbar is shaded, and the text and icon color.</li>
+          <li><b>Motion:</b> how fast the colors fade, and how often the glow redraws.</li>
+        </ol>
+        <div class="presets"><span>Default (matches Ambient light)</span><span>Recommended</span><span>Subtle</span><span>Vivid</span><span>Cinema</span><span>Gaming</span><span>Solid</span></div>
+      </div>
+      <img src="assets/settings.png" alt="The Ambient Toolbar settings panel, with sections for Ambient light, Filters, Toolbar and Motion">
+    </div>
+  </section>
+
+  <section id="pair">
+    <h2>Better together with Ambient light for YouTube</h2>
+    <p class="lead"><a href="https://github.com/WesselKroos/youtube-ambilight">Ambient light for YouTube</a> adds a glow around the video, and Ambient Toolbar carries it up into the tab bar and toolbar. Each works on its own, but together the whole window glows.</p>
+    <div class="grid">
+      <div class="card"><h3>Matched by default</h3><p>The default look is calibrated against Ambient light's glow, so the two blend without any setup.</p></div>
+      <div class="card"><h3>Import its settings</h3><p>Toolbar popup → Import / Export…, and choose an Ambient light settings export. Its edge size, spread and fading are converted for you.</p></div>
+      <div class="card"><h3>Recommended pair</h3><p>The settings from these screenshots are in the <a href="https://github.com/mhmd-ra/ambient-toolbar/tree/main/presets">presets folder</a>: one file for Ambient light, and a one-click <b>Recommended</b> preset in Ambient Toolbar.</p></div>
+    </div>
+    <p class="lead" style="margin-top:16px;font-size:13px">Ambient Toolbar is an independent project and isn't affiliated with Ambient light for YouTube.</p>
+  </section>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <p class="lead">Firefox doesn't let add-ons draw into the toolbar, but it does let them change the window's theme.</p>
+    <ol class="steps">
+      <li><b>Sample.</b> The add-on shrinks the top of the playing video, skipping black bars, to a tiny pixel grid about 20 times a second, entirely on your device.</li>
+      <li><b>Smooth.</b> Colors are eased over time and graded with your brightness, saturation, contrast and temperature settings.</li>
+      <li><b>Tint.</b> The background script updates the theme for that window only, with <code>browser.theme.update</code>. It sets the colors, plus a 1-pixel glow strip layered over the previous one so it doesn't flicker.</li>
+    </ol>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <div class="grid">
+      <div class="card"><h3>From Firefox Add-ons</h3><p>The easiest way, with automatic updates: <a href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">addons.mozilla.org</a>.</p></div>
+      <div class="card"><h3>From GitHub Releases</h3><p>Download the signed <code>.xpi</code> from <a href="https://github.com/mhmd-ra/ambient-toolbar/releases">Releases</a> and drag it into Firefox.</p></div>
+      <div class="card"><h3>For development</h3><p>Open <code>about:debugging</code> → This Firefox → Load Temporary Add-on, and choose <code>extension/manifest.json</code>.</p></div>
+    </div>
+    <p class="lead" style="margin-top:16px">Requires Firefox 142 or newer. DRM-protected videos (some movies and rentals) can't be sampled.</p>
+  </section>
+
+  <footer>
+    <span>Ambient Toolbar for YouTube · MIT License · Built with the help of <a href="https://claude.ai">Claude</a> (Opus 5.5) · Not affiliated with YouTube, Google, or Ambient light for YouTube.</span>
+    <span><a href="privacy.html">Privacy</a> · <a href="https://github.com/mhmd-ra/ambient-toolbar/issues">Report an issue</a></span>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ambient Toolbar settings</title>
+<style>
+  :root { --bg: #1b1b1b; --row: #232323; --head: #2c2c2c; --text: #f1f1f1; --dim: #9a9a9a; --accent: #3ea6ff; --track: #555; }
+  * { box-sizing: border-box; }
+  body { font: 13px Roboto, "Segoe UI", system-ui, sans-serif; margin: 0; width: 320px; background: var(--bg); color: var(--text); }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--head); font-size: 15px; font-weight: 500; }
+  .bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #333; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #333; }
+  .presets button { background: #333; color: var(--text); border: 0; border-radius: 12px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 12px; }
+  .presets button:hover { background: var(--accent); color: #000; }
+  details { border-bottom: 1px solid #333; }
+  summary { list-style: none; cursor: pointer; padding: 7px 14px; background: var(--row); color: var(--dim); font-weight: 500; display: flex; justify-content: space-between; }
+  summary::after { content: "▾"; }
+  details:not([open]) summary::after { content: "▸"; }
+  details[open] summary { color: var(--text); }
+  .ctl { padding: 8px 14px 6px; }
+  .ctl .top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  .ctl .val { color: var(--text); font-variant-numeric: tabular-nums; }
+  .ctl .hint { color: var(--dim); font-size: 11px; margin-top: 1px; }
+  input[type=range] { width: 100%; margin: 6px 0 2px; accent-color: var(--accent); }
+  select { background: #333; color: var(--text); border: 1px solid #555; border-radius: 4px; padding: 2px 6px; font: inherit; }
+  .adv { display: none; }
+  body.advanced .adv { display: block; }
+  /* Toggle switch */
+  .sw { position: relative; width: 36px; height: 20px; flex: none; }
+  .sw input { opacity: 0; width: 0; height: 0; }
+  .sw span { position: absolute; inset: 0; background: #666; border-radius: 10px; transition: .15s; cursor: pointer; }
+  .sw span::before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .15s; }
+  .sw input:checked + span { background: var(--accent); }
+  .sw input:checked + span::before { transform: translateX(16px); }
+  .imp { background: var(--accent); color: #000; border: 0; border-radius: 4px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 12px; }
+  footer { padding: 10px 14px; display: flex; justify-content: flex-end; }
+  footer button { background: transparent; color: var(--dim); border: 1px solid #444; border-radius: 4px; padding: 4px 10px; cursor: pointer; font: inherit; }
+  footer button:hover { color: var(--text); border-color: #777; }
+</style>
+</head>
+<body>
+  <header>Ambient Toolbar <label class="sw"><input type="checkbox" id="enabled"><span></span></label></header>
+  <div class="bar">Advanced <label class="sw"><input type="checkbox" id="advanced"><span></span></label></div>
+  <div class="presets" id="presets"></div>
+  <div class="bar"><span>Settings file</span><button id="importAL" class="imp">Import / Export…</button></div>
+  <div id="sections"></div>
+  <footer><button id="reset">Reset to defaults</button></footer>
+  <script src="settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

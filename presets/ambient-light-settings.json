@@ -1,0 +1,16 @@
+{
+  "advancedSettings": true,
+  "blur": 30,
+  "detectHorizontalBarSizeEnabled": true,
+  "edge": 40,
+  "enableInViews": 0,
+  "frameFading": 0.74,
+  "framerateLimit": 30,
+  "sectionAmbientlightCollapsed": false,
+  "sectionQualityPerformanceCollapsed": true,
+  "sectionSettingsCollapsed": false,
+  "sectionStatsCollapsed": true,
+  "spread": 200,
+  "spreadFadeCurve": 30,
+  "spreadFadeStart": -50
+}

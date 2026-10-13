@@ -1,0 +1,60 @@
+{
+  "manifest_version": 2,
+  "name": "Ambient Toolbar for YouTube",
+  "version": "1.2.0",
+  "description": "Tints the Firefox tab bar and toolbar in real time to match the YouTube video you're watching — an ambient glow for your browser.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ambient-toolbar-youtube@kk-addons",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "permissions": [
+    "theme",
+    "storage"
+  ],
+  "icons": {
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    },
+    "default_title": "Ambient Toolbar",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": [
+      "settings.js",
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://m.youtube.com/*"
+      ],
+      "js": [
+        "settings.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "author": "kk",
+  "options_ui": {
+    "page": "popup.html",
+    "open_in_tab": false
+  },
+  "homepage_url": "https://github.com/mhmd-ra/ambient-toolbar"
+}

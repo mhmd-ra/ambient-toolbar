@@ -1,0 +1,15 @@
+{
+  "name": "ambient-toolbar",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Firefox add-on that tints the toolbar to match the playing YouTube video.",
+  "license": "MIT",
+  "scripts": {
+    "start": "web-ext run --source-dir extension --start-url https://www.youtube.com",
+    "lint": "web-ext lint --source-dir extension",
+    "build": "web-ext build --source-dir extension --artifacts-dir dist --overwrite-dest"
+  },
+  "devDependencies": {
+    "web-ext": "^8.0.0"
+  }
+}
