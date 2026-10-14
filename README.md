@@ -36,7 +36,7 @@ It runs entirely in the browser. Nothing is collected, stored remotely, or sent 
 
 **Firefox Add-ons (recommended).** Install from [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/). Updates are automatic.
 
-**From source.** See [Development](#development). Release builds on GitHub are unsigned and intended for review or local testing; regular Firefox only installs signed add-ons, so use the AMO listing for everyday use.
+**From source.** See [Development](#development). A build made from source is unsigned, so regular Firefox only loads it temporarily; use the AMO listing for everyday use.
 
 Requires desktop Firefox 142 or later.
 
