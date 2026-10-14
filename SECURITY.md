@@ -8,7 +8,7 @@ Only the latest release on [addons.mozilla.org](https://addons.mozilla.org/firef
 
 Please report security issues privately through GitHub's
 [private vulnerability reporting](https://github.com/mhmd-ra/ambient-toolbar/security/advisories/new),
-not as a public issue.
+not as a public issue. If that link isn't available, open an issue asking for a private contact and leave out the details.
 
 Include the add-on version, your Firefox version, and steps to reproduce. You can expect a first reply within a week.
 
