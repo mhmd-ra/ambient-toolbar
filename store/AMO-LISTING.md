@@ -57,7 +57,7 @@ Paste the contents of PRIVACY.md (or link https://mhmd-ra.github.io/ambient-tool
 
 ## Notes to reviewer
 No build step, minification or remote code: the uploaded files are the source.
-- content.js runs on youtube.com and draws the playing video into a 16×4 canvas to read its colors. Nothing is stored or transmitted.
+- content.js runs on youtube.com and draws the playing video into a small canvas (12×4 pixels by default) to read its colors. Nothing is stored or transmitted.
 - background.js turns those colors into a theme with browser.theme.update(windowId, …) and resets it with browser.theme.reset(windowId).
 - import.html opens in a tab from the popup. It reads a settings JSON file the user picks (local only), and Export saves the current settings as a JSON download (blob URL, no downloads permission). It's converted to our settings and saved with storage.local.
 - To test: open any YouTube video and press play. The tab bar and toolbar take on the video's colors. The toolbar button opens the settings.

@@ -1,4 +1,4 @@
-// Ambient Toolbar for YouTube — content script (v3.0)
+// Ambient Toolbar for YouTube — content script
 const ROWS = 4;
 const INTERVAL = 50;     // ms between samples (~20 fps)
 
