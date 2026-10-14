@@ -51,7 +51,7 @@
       "run_at": "document_idle"
     }
   ],
-  "author": "kk",
+  "author": "mhmd-ra",
   "options_ui": {
     "page": "popup.html",
     "open_in_tab": false

@@ -145,4 +145,4 @@ Built with the help of [Claude](https://claude.ai) (Opus 5.5) by Anthropic, cove
 
 ## License
 
-[MIT](LICENSE) © 2026 kk. Not affiliated with YouTube, Google, or Ambient light for YouTube.
+[MIT](LICENSE) © 2026 mhmd-ra. Not affiliated with YouTube, Google, or Ambient light for YouTube.
