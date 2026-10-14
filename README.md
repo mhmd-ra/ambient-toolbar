@@ -1,148 +1,139 @@
-<p align="center">
-  <img src="docs/assets/icon.png" width="96" alt="Ambient Toolbar icon">
-</p>
+<img src="docs/assets/icon.png" width="64" alt="" align="left">
 
-<h1 align="center">Ambient Toolbar for YouTube</h1>
+# Ambient Toolbar for YouTube
 
-<p align="center">
-  A Firefox add-on that tints your tab bar and toolbar in real time to match the YouTube video you're watching.
-  <br>
-  <a href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/"><b>Get it for Firefox</b></a> ·
-  <a href="https://mhmd-ra.github.io/ambient-toolbar/">Website</a> ·
-  <a href="https://github.com/mhmd-ra/ambient-toolbar/releases">Releases</a> ·
-  <a href="https://github.com/mhmd-ra/ambient-toolbar/issues">Report a bug</a>
-</p>
+A Firefox add-on that tints the tab bar and toolbar to match the YouTube video you're watching.
 
-<p align="center">
-  <img alt="Firefox 142+" src="https://img.shields.io/badge/Firefox-142%2B-FF7139?logo=firefoxbrowser&logoColor=white">
-  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue">
-  <img alt="No data collected" src="https://img.shields.io/badge/data%20collected-none-success">
-</p>
+[Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/) · [Website](https://mhmd-ra.github.io/ambient-toolbar/) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/mhmd-ra/ambient-toolbar/issues)
 
-<p align="center">
-  <img src="docs/assets/screenshots/ocean.jpg" alt="Firefox tab bar and toolbar tinted teal to match an underwater YouTube video" width="760">
-</p>
+[![Firefox 142+](https://img.shields.io/badge/Firefox-142%2B-FF7139?logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/)
+[![Release](https://img.shields.io/github/v/release/mhmd-ra/ambient-toolbar?color=2b6b7f)](https://github.com/mhmd-ra/ambient-toolbar/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2b6b7f)](LICENSE)
 
-<table>
-  <tr>
-    <td><img src="docs/assets/screenshots/liquids.jpg" alt="Toolbar glowing red and amber with an abstract liquid video"></td>
-    <td><img src="docs/assets/screenshots/gradient.jpg" alt="Toolbar glowing pink and violet with a soft color-gradient video"></td>
-    <td><img src="docs/assets/screenshots/witcher.jpg" alt="Toolbar in muted grey-green tones with a dark forest game video"></td>
-  </tr>
-</table>
+![Firefox toolbar tinted teal to match an underwater YouTube video](docs/assets/screenshots/ocean.jpg)
 
----
+| | | |
+|---|---|---|
+| ![Toolbar in red and amber, abstract liquid video](docs/assets/screenshots/liquids.jpg) | ![Toolbar in pink and violet, gradient video](docs/assets/screenshots/gradient.jpg) | ![Toolbar in muted grey-green, dark forest game footage](docs/assets/screenshots/witcher.jpg) |
+
+## Overview
+
+While a video plays, Ambient Toolbar samples the colors along its top edge and applies them to the Firefox window theme as a left-to-right gradient. The browser chrome reads as an extension of the picture instead of a frame around it. When you pause, it holds the last color; when you leave the video or switch tabs, your own theme comes back.
+
+It runs entirely in the browser. Nothing is collected, stored remotely, or sent anywhere.
 
 ## Features
 
-- 🌈 **Gradient glow:** a left-to-right glow across the whole header that follows the colors along the top of the video.
-- 🎚️ **Fully adjustable:** blur, edge size, spread fade, brightness, saturation, contrast, color temperature and more, plus presets.
-- ✨ **Flicker-free:** the glow is a 1-pixel strip with double buffering, so updates don't flash.
-- ⏸️ **Smart:** keeps its color while paused, updates when you seek, and restores your theme when you leave the video or switch tabs.
-- 🔤 **Readable:** text and icons switch between light and dark automatically.
-- 🎬 **Black bars ignored:** letterboxed videos don't darken the toolbar.
-- 🤝 **Matches Ambient light for YouTube:** the default look is calibrated to blend with its glow, and you can import its settings.
-- 📺 **Watch pages and Shorts:** the muted previews on the home page are ignored.
-- 🔒 **Private:** everything runs on your device. No data is collected or sent anywhere.
+- **Gradient or solid tint.** A gradient that follows the colors across the top of the frame, or a single averaged color.
+- **No flicker.** The gradient is drawn as a 1 px strip and double-buffered, so Firefox never paints a blank frame between updates.
+- **Letterbox detection.** Black bars at the top of the video are skipped so widescreen films don't darken the toolbar.
+- **Readable text.** Tab and icon colors switch between light and dark based on the tint.
+- **Watch pages and Shorts.** Muted previews on the home page are ignored.
+- **Tunable.** Blur, edge size, spread fade, brightness, saturation, contrast, color temperature, toolbar shade and update rate, with seven presets.
+- **Pairs with Ambient light for YouTube.** Defaults are calibrated to continue its glow, and its settings export can be imported directly.
 
-## Settings
+## Installation
 
-Open the toolbar button, or go to **Add-ons → Ambient Toolbar → Options**. Changes apply live, even while paused. Turn on **Advanced** to see every option.
+**Firefox Add-ons (recommended).** Install from [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/). Updates are automatic.
 
-<img src="docs/assets/settings.png" alt="Settings panel" width="300" align="right">
+**From source.** See [Development](#development). Release builds on GitHub are unsigned and intended for review or local testing; regular Firefox only installs signed add-ons, so use the AMO listing for everyday use.
 
-**Presets:** Default, Recommended (the settings from the screenshots), Subtle, Vivid, Cinema, Gaming, Solid.
+Requires desktop Firefox 142 or later.
 
-**Settings file:** popup → **Import / Export…** to back up or share your settings, or to import an Ambient light for YouTube export.
+## Configuration
 
-| Section | Setting | What it does |
+Open the toolbar button, or go to **Add-ons and themes → Ambient Toolbar → Options**. Changes apply immediately, including while the video is paused. Enable **Advanced** to show every option.
+
+<img src="docs/assets/settings.png" alt="Settings panel" width="280" align="right">
+
+**Presets:** Default, Recommended, Subtle, Vivid, Cinema, Gaming, Solid.
+
+**Import / Export:** back up or share your settings as a file, or import an Ambient light for YouTube export.
+
+| Section | Setting | Effect |
 |---|---|---|
-| Ambient light | Gradient glow | Left-to-right glow picture; off = solid colors |
-| | Color picking | Natural (plain average, like Ambient light for YouTube) or Vivid (bright parts count more) |
-| | Remove black bars | Ignore letterbox bars at the top of the video |
-| | Blur | Blends neighbouring colors together |
-| | Edge size | How much of the video's top edge the colors come from |
-| | Spread fade | Darkens the glow toward the left and right sides |
-| | Color zones* | Detail of the gradient across the header |
-| Filters | Brightness, Saturation | Overall look of the colors |
-| | Contrast*, Color temperature* | Punchier colors; warmer or cooler tint |
-| Toolbar | Toolbar shade | Darkens the toolbar so the glow sits behind it |
+| Ambient light | Gradient glow | Gradient across the header; off uses a solid color |
+| | Color picking | *Natural* (plain average) or *Vivid* (weights brighter areas) |
+| | Remove black bars | Ignores letterbox bars at the top of the frame |
+| | Blur | Blends neighbouring colors |
+| | Edge size | How much of the frame's top edge is sampled |
+| | Spread fade | Darkens the gradient toward the window edges |
+| | Color zones † | Number of color stops across the header |
+| Filters | Brightness, Saturation | Overall intensity |
+| | Contrast †, Color temperature † | Punch and warm/cool shift |
+| Toolbar | Toolbar shade | Darkens the toolbar so the tint sits behind it |
 | | Text & icons | Auto, light or dark |
 | Motion | Fade in duration | How quickly colors follow the video |
-| | Glow updates* | Glow redraws per second; lower it if you see flicker |
+| | Glow updates † | Redraws per second; lower it if you see flicker |
 
-<sub>* Advanced</sub>
+† Advanced
 
 <br clear="right">
 
-## Works with Ambient light for YouTube
+## Using it with Ambient light for YouTube
 
-Ambient Toolbar is designed to pair with [Ambient light for YouTube](https://github.com/WesselKroos/youtube-ambilight), which adds the glow around the video itself. With both installed, the glow continues from the page up into the tab bar and toolbar. It also works fine on its own.
+[Ambient light for YouTube](https://github.com/WesselKroos/youtube-ambilight) adds a glow around the video on the page. With both installed, the glow continues up into the tab bar and toolbar. Ambient Toolbar also works on its own.
 
-- **Matching out of the box:** the default settings are calibrated to blend with Ambient light's glow.
-- **Import its settings:** open the toolbar popup → **Import…**, and choose an Ambient light settings export. Its edge size, spread, fading and black-bar settings are converted to matching toolbar settings.
-- **Recommended pair:** [`presets/`](presets) has the settings used for the screenshots. Import `ambient-light-settings.json` into Ambient light, then either import `ambient-toolbar-settings.json` into Ambient Toolbar or just click its **Recommended** preset.
+- The default settings are calibrated to match Ambient light's glow.
+- **Import / Export… → Import** accepts an Ambient light settings export and converts its edge size, spread, fade and black-bar settings.
+- [`presets/`](presets) contains the tested pair of settings used for the screenshots. The **Recommended** preset applies the same values in one click.
 
-Ambient Toolbar is an independent project. It isn't affiliated with Ambient light for YouTube or its developer and doesn't use its code.
-
-## Install
-
-- **Firefox Add-ons (recommended):** [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/), with automatic updates.
-- **GitHub Releases:** download the signed `.xpi` from [Releases](https://github.com/mhmd-ra/ambient-toolbar/releases) and drag it into a Firefox window.
-
-Requires Firefox 142 or newer (desktop).
+Ambient Toolbar is an independent project and is not affiliated with Ambient light for YouTube or its author.
 
 ## How it works
 
-Firefox doesn't let add-ons draw into the browser's toolbar, but it does let them change the window's theme.
+Firefox doesn't let add-ons draw inside the browser toolbar, but it does let them change the window theme.
 
-1. **Sample:** `content.js` shrinks the top part of the playing `<video>` (skipping black bars) to a tiny canvas, 12×4 pixels by default, about 20 times a second, using `requestVideoFrameCallback`.
-2. **Smooth:** colors are eased over time so scene cuts blend instead of jumping.
-3. **Tint:** `background.js` grades the colors with your settings and calls `browser.theme.update(windowId, …)` for that window only.
-   - **Solid mode:** only theme colors change, which repaints without flashing.
-   - **Gradient mode:** the glow is a 1-pixel-tall strip repeated down the header (`repeat-y`). Each new strip is layered on top of the previous, already-loaded one, so Firefox never shows a blank frame.
+1. **Sample.** `content.js` downscales the top of the playing `<video>` (minus any black bars) to a small canvas, 12×4 px by default, using `requestVideoFrameCallback`, roughly 20 times per second.
+2. **Smooth.** Colors are eased over time so scene cuts blend rather than jump.
+3. **Apply.** `background.js` grades the colors with your settings and calls `browser.theme.update(windowId, …)` for that window only.
+   - *Solid mode* changes only theme colors, which repaint without flashing.
+   - *Gradient mode* renders a 1 px tall strip tiled down the header. Each new strip is layered over the previous, already-decoded one, so there is never an empty frame.
 
 ## Development
 
-```bash
+Requires Node.js and Firefox.
+
+```sh
 git clone https://github.com/mhmd-ra/ambient-toolbar.git
 cd ambient-toolbar
 npm install
-npm start        # launches Firefox with the add-on loaded (auto-reloads on save)
-npm run lint     # Mozilla's add-on linter
-npm run build    # creates dist/ambient_toolbar_for_youtube-<version>.zip
+npm start        # run Firefox with the add-on loaded; reloads on save
+npm run lint     # Mozilla add-on linter
+npm run build    # package to dist/
 ```
 
-Or, without Node: open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and choose `extension/manifest.json`.
+Without Node, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on…**, and select `extension/manifest.json`.
 
-```
-extension/        the add-on itself (this is what gets packaged)
+```text
+extension/         the add-on (packaged as-is)
   manifest.json
-  content.js      samples the video on youtube.com
-  background.js   grades colors and updates the theme
-  settings.js     defaults and presets (shared)
-  popup.html/js   settings panel (toolbar popup + options page)
-  import.html/js  import/export page (opens in a tab)
-  icons/
-presets/          matching settings files for Ambient light for YouTube and Ambient Toolbar
-docs/             GitHub Pages website
-store/            text for the addons.mozilla.org listing
+  content.js       samples the video on youtube.com
+  background.js    grades colors and updates the theme
+  settings.js      defaults and presets
+  popup.html/js    settings panel (toolbar popup and options page)
+  import.html/js   import / export page
+presets/           matching settings for Ambient light and Ambient Toolbar
+docs/              website (GitHub Pages)
+store/             addons.mozilla.org listing text
 ```
+
+Bug reports and pull requests are welcome. Please open an issue first for larger changes.
 
 ## Known limitations
 
-- DRM-protected videos (some movies and rentals) can't be sampled, so the toolbar stays unchanged.
-- If you use a custom Firefox theme, it's replaced while a video plays and restored afterwards.
-- Firefox limits how fast themes can update, so the glow is smooth but not as instant as an in-page effect.
+- DRM-protected videos (some films and rentals) can't be sampled; the toolbar stays unchanged.
+- A custom Firefox theme is replaced while a video plays and restored afterwards.
+- Firefox rate-limits theme updates, so the tint is smooth but not as immediate as an in-page effect.
 
 ## Privacy
 
-No data is collected, stored or sent anywhere. See [PRIVACY.md](PRIVACY.md).
+The add-on makes no network requests and stores settings only in Firefox's local extension storage. See [PRIVACY.md](PRIVACY.md).
 
-## Credits
+## Acknowledgments
 
-Built with the help of [Claude](https://claude.ai) (Opus 5.5) by Anthropic, covering the code, the settings panel, the website and the docs.
+Developed with assistance from [Claude](https://claude.ai) by Anthropic.
 
 ## License
 
-[MIT](LICENSE) © 2026 mhmd-ra. Not affiliated with YouTube, Google, or Ambient light for YouTube.
+[MIT](LICENSE) © 2026 mhmd-ra. YouTube is a trademark of Google LLC; this project is not affiliated with or endorsed by Google.
