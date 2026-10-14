@@ -7,73 +7,184 @@
 <meta name="description" content="A Firefox add-on that tints your tab bar and toolbar in real time to match the YouTube video you're watching.">
 <meta property="og:title" content="Ambient Toolbar for YouTube">
 <meta property="og:description" content="Your Firefox toolbar glows with the colors of the video you're watching.">
+<meta name="theme-color" content="#0b1216">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:image" content="https://mhmd-ra.github.io/ambient-toolbar/assets/screenshots/ocean.jpg">
 <link rel="icon" href="assets/favicon.png">
+<link rel="preload" href="assets/fonts/hanken-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face {
+    font-family: "Hanken Grotesk";
+    src: url("assets/fonts/hanken-grotesk-latin-wght-normal.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+  /* The whole page takes its color from the screenshot on show, the way the add-on does. */
+  @property --tint { syntax: "<color>"; inherits: true; initial-value: rgb(30 88 108); }
+
   :root {
-    --bg: #0d0d10; --panel: #16161b; --line: #26262e; --text: #ededf2; --dim: #9898a6;
-    --accent: #3ea6ff; --max: 1040px;
-    --scene: linear-gradient(90deg, #ff3d6e, #ff9a3d, #ffe14d, #3dffa8, #3dc8ff, #7a5cff, #ff3dd2, #ff3d6e);
+    --tint: rgb(30 88 108);
+    --ink: oklch(13% 0.006 250);
+    --bg: color-mix(in oklab, var(--tint) 9%, var(--ink));
+    --raise: color-mix(in oklab, var(--tint) 15%, oklch(17% 0.006 250));
+    --line: color-mix(in oklab, var(--tint) 26%, oklch(27% 0.006 250));
+    --text: color-mix(in oklab, var(--tint) 5%, oklch(95% 0 0));
+    --dim: color-mix(in oklab, var(--tint) 16%, oklch(77% 0 0));
+    --link: color-mix(in oklab, var(--tint) 38%, oklch(92% 0 0));
+    --max: 1200px;
+    --gutter: clamp(20px, 4vw, 48px);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+    transition: --tint 1.4s var(--ease);
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scrollbar-color: var(--line) transparent;
   }
   * { box-sizing: border-box; }
-  html { color-scheme: dark; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
-  nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text); }
-  nav .brand img { width: 28px; height: 28px; }
-  nav .links { display: flex; gap: 18px; font-size: 14px; }
-  nav .links a { color: var(--dim); }
-  @media (max-width: 600px) { nav .links a:not(:last-child) { display: none; } }
+  body {
+    margin: 0; color: var(--text);
+    background:
+      radial-gradient(120% 70vh at 50% 0, color-mix(in oklab, var(--tint) 20%, var(--ink)), transparent 70%),
+      var(--bg);
+    background-repeat: no-repeat; background-color: var(--bg);
+    font: 400 1.0625rem/1.6 "Hanken Grotesk", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: color-mix(in oklab, var(--tint) 55%, oklch(40% 0 0)); color: #fff; }
+  :focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  a:focus-visible { border-radius: 4px; }
+  .btn:focus-visible { border-radius: 999px; }
+  a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in oklab, var(--link) 45%, transparent); transition: text-decoration-color .2s; }
+  a:hover { text-decoration-color: currentColor; }
+  code { font: 0.86em var(--mono); background: var(--raise); border-radius: 4px; padding: 0.12em 0.4em; }
+  b { font-weight: 600; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 
-  .hero { text-align: center; padding: 48px 0 28px; }
-  .hero h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.08; margin: 0 0 16px; letter-spacing: -0.02em; }
-  .hero h1 span { background: var(--scene); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: pan 12s linear infinite; }
-  .hero p { color: var(--dim); font-size: 18px; max-width: 600px; margin: 0 auto 28px; }
-  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; }
-  .btn.primary { background: #ff7139; color: #fff; }
-  .btn.ghost { border: 1px solid var(--line); color: var(--text); }
-  .btn:hover { text-decoration: none; filter: brightness(1.1); }
+  /* The nav is the toolbar: its glow is sampled from the top edge of the screenshot. */
+  .bar { position: sticky; top: 0; z-index: 10; background: oklch(16% 0.006 250); border-bottom: 1px solid rgb(0 0 0 / .45); isolation: isolate; }
+  .bar .glow { position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity 1.1s var(--ease);
+    background: linear-gradient(90deg, #0d2a36, #173f4d 20%, #1c5261 45%, #17485c 70%, #0e2c3c); }
+  .bar .glow.show { opacity: 1; }
+  .bar::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(90deg, rgb(0 0 0 / .38), transparent 22%, transparent 78%, rgb(0 0 0 / .38)); }
+  .bar nav { display: flex; align-items: center; gap: 28px; min-height: 56px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #fff; text-decoration: none; margin-right: auto; white-space: nowrap; }
+  .brand img { width: 26px; height: 26px; display: block; }
+  .links { display: flex; gap: 24px; font-size: 0.9375rem; }
+  .links a { color: rgb(255 255 255 / .82); text-decoration: none; white-space: nowrap; padding: 10px 0; transition: color .2s; }
+  .links a:hover { color: #fff; }
 
-  .shot { margin: 44px auto 0; max-width: 960px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 30px 80px -20px rgba(0,0,0,.8); }
-  .shot img { display: block; width: 100%; height: auto; }
-  .gallery { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); max-width: 960px; margin: 14px auto 0; }
-  @media (max-width: 760px) { .gallery { grid-template-columns: 1fr; } }
-  .gallery img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--line); }
-  .caption { text-align: center; color: var(--dim); font-size: 13px; margin-top: 10px; }
-  @keyframes pan { to { background-position: 300% 0; } }
-  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0.8em 1.4em; border-radius: 999px; font-weight: 600; font-size: 1rem; line-height: 1.2; text-decoration: none; white-space: nowrap; transition: background-color .25s, border-color .25s, transform .25s var(--ease); }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary { background: var(--text); color: oklch(18% 0.01 250); }
+  .btn.primary:hover { background: #fff; }
+  .btn.quiet { border: 1px solid var(--line); color: var(--text); }
+  .btn.quiet:hover { border-color: var(--dim); }
+  .btn.small { padding: 0.5em 1em; font-size: 0.875rem; background: rgb(255 255 255 / .92); color: oklch(18% 0.01 250); }
+  .btn.small:hover { background: #fff; }
 
-  section { padding: 64px 0 0; }
-  h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
-  .lead { color: var(--dim); margin: 0 0 28px; }
-  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
-  .card h3 { margin: 0 0 6px; font-size: 16px; }
-  .card p { margin: 0; color: var(--dim); font-size: 14px; }
-  .card .ic { font-size: 22px; margin-bottom: 8px; }
+  /* Hero */
+  .hero { padding: clamp(40px, 7vw, 88px) 0 0; }
+  .hero-top { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px clamp(32px, 6vw, 96px); align-items: end; }
+  h1 { font-weight: 300; font-size: clamp(2.5rem, 6.2vw, 5rem); line-height: 1.02; letter-spacing: -0.035em; margin: 0; text-wrap: balance; }
+  .hero-top p { color: var(--dim); margin: 0 0 24px; max-width: 46ch; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
 
-  .split { display: grid; gap: 32px; grid-template-columns: 1fr 320px; align-items: start; }
-  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } .split img { margin: 0 auto; } }
-  .split img { width: 100%; max-width: 320px; border-radius: 12px; border: 1px solid var(--line); display: block; }
-  ol.steps { padding: 0; margin: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
-  ol.steps li { counter-increment: s; position: relative; padding-left: 44px; color: var(--dim); }
-  ol.steps li b { color: var(--text); }
-  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--panel); border: 1px solid var(--line); display: grid; place-items: center; color: var(--text); font-weight: 600; font-size: 14px; }
-  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
-  .presets span { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 4px 12px; font-size: 13px; }
-  code { background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 13px; }
+  /* Before / after */
+  .compare { --pos: 50%; position: relative; margin: clamp(32px, 5vw, 56px) 0 0; aspect-ratio: 1600 / 826; border-radius: 10px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 40px 80px -40px rgb(0 0 0 / .9); user-select: none; }
+  .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .compare .off { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+  .compare .tag { position: absolute; top: 13%; font-size: 0.8125rem; font-weight: 600; padding: 0.25em 0.8em; border-radius: 999px; background: rgb(0 0 0 / .62); color: #fff; pointer-events: none; transition: opacity .3s; }
+  .compare .tag.gone { opacity: 0; }
+  .compare .tag-off { left: 14px; }
+  .compare .tag-on { right: 14px; }
+  .compare .handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: rgb(255 255 255 / .9); pointer-events: none; }
+  .compare .handle::after { content: ""; position: absolute; top: 4.2%; left: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: #fff center / 18px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='%23181a1f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 5 2.5 9l4 4M11.5 5l4 4-4 4'/%3E%3C/svg%3E"); box-shadow: 0 2px 10px rgb(0 0 0 / .5); }
+  .compare input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; touch-action: pan-y; }
+  .compare:has(input:focus-visible) { outline: 2px solid var(--text); outline-offset: 4px; }
 
-  footer { margin-top: 80px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--dim); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .scene-row { display: flex; justify-content: space-between; align-items: center; gap: 16px 32px; flex-wrap: wrap; margin-top: 18px; }
+  .scenes { display: flex; gap: 6px; flex-wrap: wrap; }
+  .scenes button { font: inherit; font-size: 0.9375rem; color: var(--dim); background: none; border: 1px solid transparent; border-radius: 999px; padding: 0.6em 1em 0.6em 0.6em; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; transition: color .2s, border-color .2s, background-color .2s; }
+  .scenes button i { width: 26px; height: 14px; border-radius: 3px; background: var(--sw, var(--line)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .1); }
+  .scenes button:hover { color: var(--text); }
+  .scenes button[aria-pressed="true"] { color: var(--text); border-color: var(--line); background: var(--raise); }
+  .caption { color: var(--dim); font-size: 0.875rem; margin: 0; max-width: 62ch; }
+
+  /* Sections */
+  section { padding-top: clamp(88px, 12vw, 152px); scroll-margin-top: 40px; }
+  h2 { font-weight: 300; font-size: clamp(1.9rem, 3.6vw, 2.9rem); line-height: 1.08; letter-spacing: -0.03em; margin: 0 0 14px; text-wrap: balance; }
+  h3 { font-weight: 600; font-size: 1.0625rem; line-height: 1.35; margin: 0 0 6px; }
+  .lead { color: var(--dim); margin: 0; max-width: 64ch; }
+  .hero-top .indie { font-size: 0.9375rem; margin: 22px 0 0; }
+  .indie b, .stance b { color: var(--text); }
+  .stance { color: var(--dim); font-weight: 300; font-size: clamp(1.25rem, 2.1vw, 1.6rem); line-height: 1.35; letter-spacing: -0.015em; margin: 40px 0 0; padding: 26px 0 4px; border-top: 1px solid var(--line); max-width: 46ch; }
+  .stance b { font-weight: 400; }
+
+  .features { margin: 44px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(32px, 6vw, 96px); }
+  .features > div { padding: 22px 0 24px; border-top: 1px solid var(--line); }
+  .features dt { font-weight: 600; margin: 0 0 4px; }
+  .features dd { margin: 0; color: var(--dim); max-width: 52ch; }
+  .features > .first { grid-column: 1 / -1; padding: 30px 0 38px; }
+  .features > .first dt { font-weight: 300; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.025em; line-height: 1.15; margin-bottom: 10px; }
+  .features > .first dd { font-size: 1.1875rem; max-width: 58ch; }
+  .features > :last-child:nth-child(even) { grid-column: 1 / -1; }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .groups { margin: 36px 0 0; }
+  .groups > div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 4px 20px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .groups dt { font-weight: 600; }
+  .groups dd { margin: 0; color: var(--dim); }
+  .presets { list-style: none; margin: 0; padding: 20px 0 0; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 0.9375rem; }
+  .presets li:first-child { flex-basis: 100%; color: var(--dim); }
+  .panel { max-height: 640px; overflow-y: auto; border-radius: 10px; box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 30px 60px -30px rgb(0 0 0 / .9); scrollbar-width: thin; }
+  .panel img { display: block; width: 100%; height: auto; }
+
+  .cols { margin: 44px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 56px); }
+  .cols > * { border-top: 1px solid var(--line); padding: 22px 0 8px; }
+  .cols p { margin: 0; color: var(--dim); }
+  ol.cols { list-style: none; padding: 0; counter-reset: s; }
+  ol.cols li { counter-increment: s; color: var(--dim); }
+  ol.cols li::before { content: counter(s); display: block; font-weight: 300; font-size: 2.6rem; line-height: 1; color: var(--text); margin-bottom: 14px; font-variant-numeric: tabular-nums; }
+  ol.cols li b { color: var(--text); }
+
+  .install { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .install .btn { margin-top: 18px; }
+  .ways > div { border-top: 1px solid var(--line); padding: 20px 0 22px; }
+  .ways p { margin: 0; color: var(--dim); }
+
+  footer { margin-top: clamp(96px, 12vw, 152px); padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--dim); font-size: 0.875rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 32px; }
+
+  @media (max-width: 860px) {
+    .hero-top, .split, .install { grid-template-columns: minmax(0, 1fr); }
+    .panel { max-width: 340px; max-height: 520px; }
+    .cols { grid-template-columns: minmax(0, 1fr); }
+    .cols > * { padding-bottom: 24px; }
+  }
+  @media (max-width: 760px) {
+    .bar nav { flex-wrap: wrap; gap: 0 16px; padding-top: 9px; }
+    .links { order: 3; flex-basis: 100%; overflow-x: auto; gap: 22px; margin: 4px calc(var(--gutter) * -1) 0; padding: 0 var(--gutter); scrollbar-width: none;
+      mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+    .links a { padding: 10px 0 12px; }
+    .links a:last-child { padding-right: 28px; }
+    section { scroll-margin-top: 96px; }
+    .features { grid-template-columns: minmax(0, 1fr); }
+    .groups > div { grid-template-columns: minmax(0, 1fr); }
+    .compare { border-radius: 6px; }
+    .compare .tag { top: 16%; font-size: 0.75rem; }
+    .compare .tag-off { left: 8px; } .compare .tag-on { right: 8px; }
+    .compare .handle::after { top: 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :root { scroll-behavior: auto; transition: none; }
+    .bar .glow, .btn { transition: none; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <nav>
-    <a class="brand" href="./"><img src="assets/icon.png" alt="">Ambient Toolbar</a>
+<div class="bar">
+  <span class="glow show"></span><span class="glow"></span>
+  <nav class="wrap">
+    <a class="brand" href="./"><img src="assets/icon.png" alt="" width="26" height="26">Ambient Toolbar</a>
     <div class="links">
       <a href="#features">Features</a>
       <a href="#settings">Settings</a>
@@ -81,38 +192,56 @@
       <a href="#install">Install</a>
       <a href="https://github.com/mhmd-ra/ambient-toolbar">GitHub</a>
     </div>
+    <a class="btn small" href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">Add to Firefox</a>
   </nav>
+</div>
 
+<div class="wrap">
   <header class="hero">
-    <h1>Your toolbar, <span>glowing with the video.</span></h1>
-    <p>Ambient Toolbar is a Firefox add-on that tints your tab bar and toolbar in real time to match the YouTube video you're watching. It's like ambient light that reaches past the video and into the browser.</p>
-    <div class="cta">
-      <a class="btn primary" href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">Add to Firefox</a>
-      <a class="btn ghost" href="https://github.com/mhmd-ra/ambient-toolbar">View source on GitHub</a>
+    <div class="hero-top">
+      <h1>Your toolbar, glowing with the video.</h1>
+      <div>
+        <p>Ambient Toolbar is a Firefox add-on that tints your tab bar and toolbar in real time to match the YouTube video you're watching. It's like ambient light that reaches past the video and into the browser.</p>
+        <div class="cta">
+          <a class="btn primary" href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">Add to Firefox</a>
+          <a class="btn quiet" href="https://github.com/mhmd-ra/ambient-toolbar">View source on GitHub</a>
+        </div>
+        <p class="indie"><b>Works on its own.</b> An independent project, not affiliated with Ambient light for YouTube.</p>
+      </div>
     </div>
 
-    <div class="shot"><img src="assets/screenshots/ocean.jpg" alt="Firefox tab bar and toolbar tinted teal to match an underwater YouTube video" width="1600" height="826"></div>
-    <div class="gallery">
-      <img src="assets/screenshots/liquids.jpg" alt="Toolbar glowing red and amber with an abstract liquid video" loading="lazy">
-      <img src="assets/screenshots/gradient.jpg" alt="Toolbar glowing pink and violet with a soft color-gradient video" loading="lazy">
-      <img src="assets/screenshots/witcher.jpg" alt="Toolbar in muted grey-green tones with a dark forest game video" loading="lazy">
+    <figure class="compare" id="compare">
+      <img class="on" src="assets/screenshots/ocean.jpg" alt="Firefox tab bar and toolbar tinted teal to match an underwater YouTube video" width="1600" height="826">
+      <img class="off" src="assets/screenshots/ocean-off.jpg" alt="" width="1600" height="826">
+      <span class="tag tag-off">Off</span>
+      <span class="tag tag-on">On</span>
+      <span class="handle"></span>
+      <input type="range" min="0" max="100" value="50" step="1" aria-label="Compare the toolbar with Ambient Toolbar off and on">
+    </figure>
+    <div class="scene-row">
+      <div class="scenes" role="group" aria-label="Screenshot">
+        <button type="button" aria-pressed="true" data-name="ocean" data-alt="Firefox tab bar and toolbar tinted teal to match an underwater YouTube video"><i></i>Ocean</button>
+        <button type="button" aria-pressed="false" data-name="liquids" data-alt="Toolbar glowing red and amber with an abstract liquid video"><i></i>Liquids</button>
+        <button type="button" aria-pressed="false" data-name="gradient" data-alt="Toolbar glowing pink and violet with a soft color-gradient video"><i></i>Gradient</button>
+        <button type="button" aria-pressed="false" data-name="witcher" data-alt="Toolbar in muted grey-green tones with a dark forest game video"><i></i>Forest</button>
+      </div>
+      <p class="caption">Real screenshots, shown with Ambient light for YouTube's glow around the video. The “Off” side is the same screenshot with the toolbar's tint removed.</p>
     </div>
-    <div class="caption">Real screenshots, shown with Ambient light for YouTube's glow around the video.</div>
   </header>
 
   <section id="features">
     <h2>Features</h2>
     <p class="lead">Built to blend with the glow around the video.</p>
-    <div class="grid">
-      <div class="card"><div class="ic">🌈</div><h3>Gradient glow</h3><p>A left-to-right glow across the whole header that follows the colors along the top of the video.</p></div>
-      <div class="card"><div class="ic">🎚️</div><h3>Fully adjustable</h3><p>Blur, edge size, spread fade, brightness, saturation, contrast, color temperature and more.</p></div>
-      <div class="card"><div class="ic">✨</div><h3>Flicker-free</h3><p>A tiny 1-pixel strip with double buffering, so the glow updates without flashing.</p></div>
-      <div class="card"><div class="ic">⏸️</div><h3>Smart behavior</h3><p>Keeps its color while paused, updates when you seek, and restores your theme when you leave the video.</p></div>
-      <div class="card"><div class="ic">🔤</div><h3>Always readable</h3><p>Text and icons switch between light and dark automatically, or you can pick one.</p></div>
-      <div class="card"><div class="ic">🎬</div><h3>Black bars ignored</h3><p>Letterboxed videos don't darken the toolbar. Colors come from the actual picture.</p></div>
-      <div class="card"><div class="ic">🤝</div><h3>Pairs with Ambient light</h3><p>Calibrated to match Ambient light for YouTube, and it can import that add-on's settings.</p></div>
-      <div class="card"><div class="ic">🔒</div><h3>Private</h3><p>Everything happens on your device. No data is collected or sent anywhere.</p></div>
-    </div>
+    <dl class="features">
+      <div class="first"><dt>Gradient glow</dt><dd>A left-to-right glow across the whole header that follows the colors along the top of the video.</dd></div>
+      <div><dt>Fully adjustable</dt><dd>Blur, edge size, spread fade, brightness, saturation, contrast, color temperature and more.</dd></div>
+      <div><dt>Flicker-free</dt><dd>A tiny 1-pixel strip with double buffering, so the glow updates without flashing.</dd></div>
+      <div><dt>Smart behavior</dt><dd>Keeps its color while paused, updates when you seek, and restores your theme when you leave the video.</dd></div>
+      <div><dt>Always readable</dt><dd>Text and icons switch between light and dark automatically, or you can pick one.</dd></div>
+      <div><dt>Black bars ignored</dt><dd>Letterboxed videos don't darken the toolbar. Colors come from the actual picture.</dd></div>
+      <div><dt>Pairs with Ambient light</dt><dd>Calibrated to match Ambient light for YouTube, and it can import that add-on's settings. It's a separate add-on, and you don't need it.</dd></div>
+      <div><dt>Private</dt><dd>Everything happens on your device. No data is collected or sent anywhere.</dd></div>
+    </dl>
   </section>
 
   <section id="settings">
@@ -120,33 +249,35 @@
       <div>
         <h2>Make it yours</h2>
         <p class="lead">Open the toolbar button, or go to Add-ons → Ambient Toolbar → Options. Changes apply live, even while paused. Turn on <b>Advanced</b> to see every option.</p>
-        <ol class="steps">
-          <li><b>Ambient light:</b> gradient glow on or off, color picking, black-bar removal, blur, edge size, spread fade and color zones.</li>
-          <li><b>Filters:</b> brightness, saturation, contrast and color temperature.</li>
-          <li><b>Toolbar:</b> how much the toolbar is shaded, and the text and icon color.</li>
-          <li><b>Motion:</b> how fast the colors fade, and how often the glow redraws.</li>
-        </ol>
-        <div class="presets"><span>Default (matches Ambient light)</span><span>Recommended</span><span>Subtle</span><span>Vivid</span><span>Cinema</span><span>Gaming</span><span>Solid</span></div>
+        <dl class="groups">
+          <div><dt>Ambient light</dt><dd>Gradient glow on or off, color picking, black-bar removal, blur, edge size, spread fade and color zones.</dd></div>
+          <div><dt>Filters</dt><dd>Brightness, saturation, contrast and color temperature.</dd></div>
+          <div><dt>Toolbar</dt><dd>How much the toolbar is shaded, and the text and icon color.</dd></div>
+          <div><dt>Motion</dt><dd>How fast the colors fade, and how often the glow redraws.</dd></div>
+        </dl>
+        <ul class="presets"><li>Presets</li><li>Default (matches Ambient light)</li><li>Recommended</li><li>Subtle</li><li>Vivid</li><li>Cinema</li><li>Gaming</li><li>Solid</li></ul>
       </div>
-      <img src="assets/settings.png" alt="The Ambient Toolbar settings panel, with sections for Ambient light, Filters, Toolbar and Motion">
+      <div class="panel" tabindex="0" role="group" aria-label="Settings panel screenshot, scrollable">
+        <img src="assets/settings.png" alt="The Ambient Toolbar settings panel, with sections for Ambient light, Filters, Toolbar and Motion" width="640" height="2618" loading="lazy">
+      </div>
     </div>
   </section>
 
   <section id="pair">
     <h2>Better together with Ambient light for YouTube</h2>
     <p class="lead"><a href="https://github.com/WesselKroos/youtube-ambilight">Ambient light for YouTube</a> adds a glow around the video, and Ambient Toolbar carries it up into the tab bar and toolbar. Each works on its own, but together the whole window glows.</p>
-    <div class="grid">
-      <div class="card"><h3>Matched by default</h3><p>The default look is calibrated against Ambient light's glow, so the two blend without any setup.</p></div>
-      <div class="card"><h3>Import its settings</h3><p>Toolbar popup → Import / Export…, and choose an Ambient light settings export. Its edge size, spread and fading are converted for you.</p></div>
-      <div class="card"><h3>Recommended pair</h3><p>The settings from these screenshots are in the <a href="https://github.com/mhmd-ra/ambient-toolbar/tree/main/presets">presets folder</a>: one file for Ambient light, and a one-click <b>Recommended</b> preset in Ambient Toolbar.</p></div>
+    <p class="stance"><b>Independent, and optional.</b> Ambient Toolbar is an independent project and isn't affiliated with Ambient light for YouTube. You don't need it installed.</p>
+    <div class="cols">
+      <div><h3>Matched by default</h3><p>The default look is calibrated against Ambient light's glow, so the two blend without any setup.</p></div>
+      <div><h3>Import its settings</h3><p>Toolbar popup → Import / Export…, and choose an Ambient light settings export. Its edge size, spread and fading are converted for you.</p></div>
+      <div><h3>Recommended pair</h3><p>The settings from these screenshots are in the <a href="https://github.com/mhmd-ra/ambient-toolbar/tree/main/presets">presets folder</a>: one file for Ambient light, and a one-click <b>Recommended</b> preset in Ambient Toolbar.</p></div>
     </div>
-    <p class="lead" style="margin-top:16px;font-size:13px">Ambient Toolbar is an independent project and isn't affiliated with Ambient light for YouTube.</p>
   </section>
 
   <section id="how">
     <h2>How it works</h2>
     <p class="lead">Firefox doesn't let add-ons draw into the toolbar, but it does let them change the window's theme.</p>
-    <ol class="steps">
+    <ol class="cols">
       <li><b>Sample.</b> The add-on shrinks the top of the playing video, skipping black bars, to a tiny pixel grid about 20 times a second, entirely on your device.</li>
       <li><b>Smooth.</b> Colors are eased over time and graded with your brightness, saturation, contrast and temperature settings.</li>
       <li><b>Tint.</b> The background script updates the theme for that window only, with <code>browser.theme.update</code>. It sets the colors, plus a 1-pixel glow strip layered over the previous one so it doesn't flicker.</li>
@@ -154,13 +285,18 @@
   </section>
 
   <section id="install">
-    <h2>Install</h2>
-    <div class="grid">
-      <div class="card"><h3>From Firefox Add-ons</h3><p>The easiest way, with automatic updates: <a href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">addons.mozilla.org</a>.</p></div>
-      <div class="card"><h3>From GitHub Releases</h3><p>Download the signed <code>.xpi</code> from <a href="https://github.com/mhmd-ra/ambient-toolbar/releases">Releases</a> and drag it into Firefox.</p></div>
-      <div class="card"><h3>For development</h3><p>Open <code>about:debugging</code> → This Firefox → Load Temporary Add-on, and choose <code>extension/manifest.json</code>.</p></div>
+    <div class="install">
+      <div>
+        <h2>Install</h2>
+        <p class="lead">Requires Firefox 142 or newer. DRM-protected videos (some movies and rentals) can't be sampled.</p>
+        <a class="btn primary" href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">Add to Firefox</a>
+      </div>
+      <div class="ways">
+        <div><h3>From Firefox Add-ons</h3><p>The easiest way, with automatic updates: <a href="https://addons.mozilla.org/firefox/addon/ambient-toolbar-for-youtube/">addons.mozilla.org</a>.</p></div>
+        <div><h3>From GitHub Releases</h3><p>Download the signed <code>.xpi</code> from <a href="https://github.com/mhmd-ra/ambient-toolbar/releases">Releases</a> and drag it into Firefox.</p></div>
+        <div><h3>For development</h3><p>Open <code>about:debugging</code> → This Firefox → Load Temporary Add-on, and choose <code>extension/manifest.json</code>.</p></div>
+      </div>
     </div>
-    <p class="lead" style="margin-top:16px">Requires Firefox 142 or newer. DRM-protected videos (some movies and rentals) can't be sampled.</p>
   </section>
 
   <footer>
@@ -168,5 +304,92 @@
     <span><a href="privacy.html">Privacy</a> · <a href="https://github.com/mhmd-ra/ambient-toolbar/issues">Report an issue</a></span>
   </footer>
 </div>
+
+<script>
+(() => {
+  const fig = document.getElementById('compare');
+  const range = fig.querySelector('input');
+  const imgOn = fig.querySelector('.on'), imgOff = fig.querySelector('.off');
+  const glows = document.querySelectorAll('.bar .glow');
+  const buttons = [...document.querySelectorAll('.scenes button')];
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const src = (name, off) => `assets/screenshots/${name}${off ? '-off' : ''}.jpg`;
+  const scenes = {};
+  let front = 0, sweep = 0, turn = 0;
+
+  const tagOff = fig.querySelector('.tag-off'), tagOn = fig.querySelector('.tag-on');
+  const setPos = v => {
+    fig.style.setProperty('--pos', v + '%');
+    tagOff.classList.toggle('gone', v < 12);
+    tagOn.classList.toggle('gone', v > 88);
+    range.setAttribute('aria-valuetext', `Tint off across ${Math.round(v)}% of the window`);
+  };
+  range.addEventListener('input', () => { cancelAnimationFrame(sweep); setPos(range.value); });
+
+  // Like the add-on: shrink the top edge of the video to a few pixels and read the colors.
+  function sample(img) {
+    const N = 12, c = document.createElement('canvas'), k = img.naturalWidth / 1600;
+    c.width = N; c.height = 1;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 184 * k, 122 * k, 1232 * k, 70 * k, 0, 0, N, 1);
+    const d = ctx.getImageData(0, 0, N, 1).data, stops = [], sum = [0, 0, 0];
+    for (let i = 0; i < N; i++) {
+      const p = [d[i * 4], d[i * 4 + 1], d[i * 4 + 2]];
+      p.forEach((v, j) => sum[j] += v / N);
+      const shade = Math.min(1.2, 118 / Math.max(...p, 1)); // toolbar shade: keep white text readable
+      stops.push(`rgb(${p.map(v => Math.round(v * shade)).join(' ')}) ${(i / (N - 1) * 100).toFixed(1)}%`);
+    }
+    return { glow: `linear-gradient(90deg, ${stops.join(', ')})`, tint: `rgb(${sum.map(Math.round).join(' ')})` };
+  }
+
+  function load(name) {
+    return scenes[name] ??= new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => { try { res(sample(img)); } catch (e) { rej(e); } };
+      img.onerror = rej;
+      img.src = src(name);
+    });
+  }
+
+  // Double buffering: paint the new glow on the hidden layer, then cross-fade.
+  function paint(s) {
+    const next = glows[front ^= 1];
+    next.style.background = s.glow;
+    next.classList.add('show');
+    glows[front ^ 1].classList.remove('show');
+    document.documentElement.style.setProperty('--tint', s.tint);
+  }
+
+  async function show(btn) {
+    const name = btn.dataset.name, mine = ++turn;
+    buttons.forEach(b => b.setAttribute('aria-pressed', b === btn));
+    const s = await load(name).catch(() => null);
+    await new Promise(r => { const o = new Image(); o.onload = o.onerror = r; o.src = src(name, true); });
+    if (mine !== turn) return; // a later click won
+    imgOn.src = src(name); imgOn.alt = btn.dataset.alt; imgOff.src = src(name, true);
+    if (!calm) fig.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 600, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    if (s) paint(s);
+  }
+
+  buttons.forEach(b => {
+    b.addEventListener('click', () => show(b));
+    load(b.dataset.name).then(s => b.querySelector('i').style.setProperty('--sw', s.glow)).catch(() => {});
+  });
+  load('ocean').then(paint).catch(() => {});
+
+  // One authored moment: the tint arrives across the toolbar once, then the handle is yours.
+  if (!calm) {
+    const from = 96, to = 50, t0 = performance.now() + 500, dur = 1800;
+    setPos(from);
+    const step = now => {
+      const t = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(2, -10 * t);
+      const v = t >= 1 ? to : from + (to - from) * e;
+      setPos(v); range.value = Math.round(v);
+      if (t < 1) sweep = requestAnimationFrame(step);
+    };
+    sweep = requestAnimationFrame(step);
+  }
+})();
+</script>
 </body>
 </html>

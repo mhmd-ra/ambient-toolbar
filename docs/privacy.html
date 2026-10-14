@@ -5,14 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy – Ambient Toolbar</title>
 <link rel="icon" href="assets/favicon.png">
+<link rel="preload" href="assets/fonts/hanken-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-  html { color-scheme: dark; }
-  body { margin: 0; background: #0d0d10; color: #ededf2; font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 720px; margin: 0 auto; padding: 48px 20px; }
-  a { color: #3ea6ff; }
-  h1 { font-size: 30px; margin: 0 0 4px; }
-  .dim { color: #9898a6; }
-  li { margin: 8px 0; }
+  @font-face {
+    font-family: "Hanken Grotesk";
+    src: url("assets/fonts/hanken-grotesk-latin-wght-normal.woff2") format("woff2");
+    font-weight: 100 900; font-style: normal; font-display: swap;
+  }
+  :root {
+    --tint: rgb(30 88 108);
+    --ink: oklch(13% 0.006 250);
+    --bg: color-mix(in oklab, var(--tint) 9%, var(--ink));
+    --raise: color-mix(in oklab, var(--tint) 15%, oklch(17% 0.006 250));
+    --line: color-mix(in oklab, var(--tint) 26%, oklch(27% 0.006 250));
+    --text: color-mix(in oklab, var(--tint) 5%, oklch(95% 0 0));
+    --dim: color-mix(in oklab, var(--tint) 16%, oklch(77% 0 0));
+    --link: color-mix(in oklab, var(--tint) 38%, oklch(92% 0 0));
+    color-scheme: dark; scrollbar-color: var(--line) transparent;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--text);
+    background: radial-gradient(120% 70vh at 50% 0, color-mix(in oklab, var(--tint) 20%, var(--ink)), transparent 70%) no-repeat, var(--bg);
+    font: 400 1.0625rem/1.65 "Hanken Grotesk", system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: color-mix(in oklab, var(--tint) 55%, oklch(40% 0 0)); color: #fff; }
+  :focus-visible { outline: 2px solid var(--text); outline-offset: 3px; border-radius: 4px; }
+  main { max-width: 720px; margin: 0 auto; padding: clamp(40px, 8vw, 88px) clamp(20px, 4vw, 48px) 80px; }
+  a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in oklab, var(--link) 45%, transparent); }
+  a:hover { text-decoration-color: currentColor; }
+  h1 { font-weight: 300; font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1.05; letter-spacing: -0.035em; margin: 40px 0 8px; }
+  h2 { font-weight: 300; font-size: 1.7rem; letter-spacing: -0.025em; margin: 56px 0 8px; }
+  b { font-weight: 600; }
+  .dim { color: var(--dim); margin-top: 0; }
+  ul { padding: 0; margin: 20px 0 0; list-style: none; }
+  li { padding: 16px 0; border-top: 1px solid var(--line); color: var(--dim); }
+  li b { color: var(--text); }
+  code { font: 0.86em ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace; background: var(--raise); border-radius: 4px; padding: 0.12em 0.4em; }
+  .statement { font-size: 1.25rem; margin: 32px 0 0; }
 </style>
 </head>
 <body>
@@ -20,7 +50,7 @@
   <p><a href="./">← Ambient Toolbar</a></p>
   <h1>Privacy Policy</h1>
   <p class="dim">Ambient Toolbar for YouTube · Last updated October 14, 2026</p>
-  <p><b>This add-on does not collect, store, transmit or share any personal data.</b></p>
+  <p class="statement"><b>This add-on does not collect, store, transmit or share any personal data.</b></p>
   <ul>
     <li>Video colors are read locally, inside your browser, only to tint your toolbar. Each frame is reduced to a handful of colors that are never saved or sent anywhere.</li>
     <li>Your settings are stored locally with Firefox's <code>storage</code> API and never leave your device.</li>
@@ -33,7 +63,7 @@
     <li><b>storage:</b> to remember your settings.</li>
     <li><b>Access to youtube.com:</b> to read the colors of the video you're watching.</li>
   </ul>
-  <p>Questions? <a href="https://github.com/mhmd-ra/ambient-toolbar/issues">Open an issue on GitHub</a>.</p>
+  <p style="margin-top:40px">Questions? <a href="https://github.com/mhmd-ra/ambient-toolbar/issues">Open an issue on GitHub</a>.</p>
 </main>
 </body>
 </html>
