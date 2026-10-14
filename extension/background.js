@@ -1,4 +1,4 @@
-// Ambient Toolbar for YouTube — background (v3.0)
+// Ambient Toolbar for YouTube — background
 const FRAME_MS = 80;        // max color updates per window (~12/s)
 const MIN_DELTA = 2;        // skip invisible changes
 
