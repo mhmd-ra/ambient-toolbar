@@ -70,7 +70,7 @@ Open the toolbar button, or go to **Add-ons and themes → Ambient Toolbar → O
 
 <br clear="right">
 
-## Using it with Ambient light for YouTube
+## Optional but recommended: Using it with Ambient light for YouTube
 
 [Ambient light for YouTube](https://github.com/WesselKroos/youtube-ambilight) adds a glow around the video on the page. With both installed, the glow continues up into the tab bar and toolbar. Ambient Toolbar also works on its own.
 
